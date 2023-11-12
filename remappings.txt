@@ -3,4 +3,5 @@
 @clones=lib/clones-with-immutable-args/src/
 @chainlink/=lib/chainlink-brownie-contracts/
 @openzeppelin/=lib/openzeppelin-contracts/
+@erc1363/=lib/erc1363-payable-token/
 forge-std/=lib/forge-std/src/
