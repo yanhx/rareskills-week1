@@ -7,9 +7,9 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TokenWithGodMode is Ownable2Step, ERC20 {
     constructor(
-        uint256 _totalSupply
+        uint256 totalSupply
     ) Ownable(msg.sender) ERC20("TokenWithGodMode", "TWGM") {
-        _mint(msg.sender, _totalSupply);
+        _mint(msg.sender, totalSupply);
     }
 
     /**

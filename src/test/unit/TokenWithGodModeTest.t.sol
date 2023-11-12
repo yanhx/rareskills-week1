@@ -21,6 +21,9 @@ contract TokenWithGodModeTest is Test {
         vm.deal(USER2, 10 ether);
     }
 
+    /**
+     * fund wallets with Token
+     */
     modifier fundedWithToken() {
         vm.prank(msg.sender);
         tokenWithGodMode.transfer(USER1, TRANSFER_AMOUNT);
@@ -29,6 +32,9 @@ contract TokenWithGodModeTest is Test {
         _;
     }
 
+    /**
+     * test transfer between normal wallets
+     */
     function testTransferFrom1To2() public fundedWithToken {
         uint256 startingUser1Balance = tokenWithGodMode.balanceOf(USER1);
         uint256 startingUser2Balance = tokenWithGodMode.balanceOf(USER2);
@@ -47,6 +53,9 @@ contract TokenWithGodModeTest is Test {
         assertEq(endingUser2Balance, TRANSFER_AMOUNT * 2);
     }
 
+    /**
+     * test transfer between normal wallets without setting allowance
+     */
     function testTransferFrom1To2WithoutAllowance() public fundedWithToken {
         uint256 startingUser1Balance = tokenWithGodMode.balanceOf(USER1);
         uint256 startingUser2Balance = tokenWithGodMode.balanceOf(USER2);
@@ -71,6 +80,9 @@ contract TokenWithGodModeTest is Test {
         assertEq(endingUser2Balance, TRANSFER_AMOUNT);
     }
 
+    /**
+     * test transfer between normal wallets but initiated by God wallet.
+     */
     function testTransferFrom1To2ByGod() public fundedWithToken {
         uint256 startingUser1Balance = tokenWithGodMode.balanceOf(USER1);
         uint256 startingUser2Balance = tokenWithGodMode.balanceOf(USER2);

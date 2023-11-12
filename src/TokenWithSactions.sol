@@ -9,21 +9,25 @@ contract TokenWithSactions is Ownable2Step, ERC20 {
     mapping(address => bool) public blacklists;
 
     constructor(
-        uint256 _totalSupply
+        uint256 totalSupply
     ) Ownable(msg.sender) ERC20("TokenWithSactions", "TWS") {
-        _mint(msg.sender, _totalSupply);
+        _mint(msg.sender, totalSupply);
     }
 
     /**
      * blacklist or remove an address from blacklist
      * @param _address The address to blacklist or remove from blacklist
-     * @param _isBlacklisting to blacklist or to remove from blacklist
+     * @param isBlacklisting to blacklist or to remove from blacklist
      */
     function blacklist(
         address _address,
-        bool _isBlacklisting
+        bool isBlacklisting
     ) external onlyOwner {
-        blacklists[_address] = _isBlacklisting;
+        blacklists[_address] = isBlacklisting;
+    }
+
+    function burn(uint256 value) external {
+        _burn(msg.sender, value);
     }
 
     /**
@@ -39,9 +43,5 @@ contract TokenWithSactions is Ownable2Step, ERC20 {
     ) internal virtual override {
         require(!blacklists[to] && !blacklists[from], "Blacklisted");
         super._update(from, to, value);
-    }
-
-    function burn(uint256 value) external {
-        _burn(msg.sender, value);
     }
 }

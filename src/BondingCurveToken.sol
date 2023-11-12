@@ -15,16 +15,13 @@ import {Ownable2Step, Ownable} from "@openzeppelin/contracts/access/Ownable2Step
  * @notice
  * @dev  Bonding curve contract based on Bacor formula,my current implemention is linear bonding curve.
  *
- * 1: I use native ETH as purchase token, user can only use ETH to buy BCT.
+ * 1: I use native ETH as purchase token, user can only use ETH to buy BondingCurveToken.
  *
  * 2: How to calculate how many BondingCurveToken should be minted  based on the buyer's token amount.
  * Use Bacor formula, and set the initialreserveBalance,initialSupply,RESERVE_RATION to make the linear curve. the details can see the test case.
  *
  * 3: If the initialSupply and initialreserveBalance are zero, It's can't calculate the price.So It's necessay to init these value and it's also a part of setting
  * the Bacor formula.
- *
- * ERC1363
- * https://github.com/vittominacori/erc1363-payable-token/blob/v5.1.2/contracts/token/ERC1363/ERC1363.sol
  */
 
 contract BondingCurveToken is
@@ -69,6 +66,9 @@ contract BondingCurveToken is
         uint256 redeemAmount
     );
 
+    /**
+     * check if msg sender has enough BCT to burn.
+     */
     modifier validEnoughBCT(uint256 burnAmount) {
         require(
             burnAmount > 0 && balanceOf(msg.sender) >= burnAmount,
@@ -77,6 +77,9 @@ contract BondingCurveToken is
         _;
     }
 
+    /**
+     * check if deposit amount is non zero
+     */
     modifier validMint(uint256 depositAmount) {
         require(depositAmount > 0, "Should transfer enough reserveToken");
         _;
@@ -84,6 +87,11 @@ contract BondingCurveToken is
 
     constructor() Ownable(msg.sender) ERC20("BondingCurveToken", "BCT") {}
 
+    /**
+     * @notice initial amount of reserve (ETH) need to be sent to this contract in the initialization tx if not before.
+     * @param initialSupply inital supply amount of BCT when initialize
+     * @param initialReserveBalance inital amount of reserve (ETH) when initialize
+     */
     function initialize(
         uint256 initialSupply,
         uint256 initialReserveBalance
@@ -96,10 +104,16 @@ contract BondingCurveToken is
         );
     }
 
+    /**
+     * @notice mint function consumes all ETH sent and convert to BCT
+     */
     function mint() external payable {
         _curvedMintFor(msg.sender, msg.value);
     }
 
+    /**
+     * @param burnAmount amount of BCT to burn
+     */
     function burn(
         uint256 burnAmount
     ) external validEnoughBCT(burnAmount) nonReentrant {
@@ -108,6 +122,10 @@ contract BondingCurveToken is
         require(sent, "Failed to send ether when burn");
     }
 
+    /**
+     * this view function helps to estimate how much BCT can be minted.
+     * @param depositAmount amount of ETH to deposit
+     */
     function calculateCurvedMintReturn(
         uint256 depositAmount
     ) public view returns (uint256) {
@@ -120,6 +138,10 @@ contract BondingCurveToken is
             );
     }
 
+    /**
+     * this view function helps to estimate how much ETH can be redeemed.
+     * @param burnAmount amount of BCT to burn
+     */
     function calculateCurvedBurnReturn(
         uint256 burnAmount
     ) public view returns (uint256) {

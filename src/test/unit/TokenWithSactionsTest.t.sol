@@ -18,12 +18,18 @@ contract TokenWithSactionsTest is Test {
         vm.deal(USER, 10 ether);
     }
 
+    /**
+     * fund USER account with ETH
+     */
     modifier fundedWithToken() {
         vm.prank(msg.sender);
         tokenWithSactions.transfer(USER, TRANSFER_AMOUNT);
         _;
     }
 
+    /**
+     * test transfer from wallet that is not blacklisted
+     */
     function testNonBlacklistedTransfer() public fundedWithToken {
         vm.prank(USER);
         tokenWithSactions.transfer(address(uint160(2)), TRANSFER_AMOUNT);
@@ -36,6 +42,9 @@ contract TokenWithSactionsTest is Test {
         assertEq(endingReceiverBalance, TRANSFER_AMOUNT);
     }
 
+    /**
+     * test transfer from wallet that is blacklisted
+     */
     function testBlacklistedTransfer() public fundedWithToken {
         vm.prank(msg.sender);
         tokenWithSactions.blacklist(USER, true);
@@ -44,6 +53,9 @@ contract TokenWithSactionsTest is Test {
         tokenWithSactions.transfer(address(uint160(2)), TRANSFER_AMOUNT);
     }
 
+    /**
+     * test transfer to wallet that is blacklisted
+     */
     function testBlacklistedReceive() public {
         vm.prank(msg.sender);
         tokenWithSactions.blacklist(USER, true);
