@@ -111,4 +111,26 @@ contract UntrustedEscrowTest is Test {
         untrustedEscrow.withdraw(escrowId);
         vm.stopPrank();
     }
+
+    function testWithdraw() public fundedBuyer {
+        vm.startPrank(BUYER);
+        mockERC20.approve(address(untrustedEscrow), INITIAL_FUNDED);
+        bytes32 escrowId = untrustedEscrow.deposit(
+            SELLER,
+            address(mockERC20),
+            INITIAL_FUNDED
+        );
+        vm.stopPrank();
+
+        vm.warp(block.timestamp + 4 days);
+
+        vm.prank(SELLER);
+        untrustedEscrow.withdraw(escrowId);
+        vm.stopPrank();
+
+        assertEq(mockERC20.balanceOf(address(SELLER)), INITIAL_FUNDED);
+        assertEq(mockERC20.balanceOf(address(untrustedEscrow)), 0);
+        assertEq(untrustedEscrow.getEscrowDetails(escrowId).isActive, false);
+        assertEq(untrustedEscrow.getEscrowDetails(escrowId).amount, 0);
+    }
 }

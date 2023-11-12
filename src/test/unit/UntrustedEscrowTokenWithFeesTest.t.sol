@@ -70,14 +70,17 @@ contract UntrustedEscrowTokenWithFeesTest is Test {
         );
         assertEq(
             untrustedEscrow.getEscrowDetails(escrowId).amount,
-            INITIAL_FUNDED
+            INITIAL_FUNDED - 100
         );
         assertEq(
             untrustedEscrow.getEscrowDetails(escrowId).releaseTime,
             block.timestamp + 3 days
         );
         assertEq(untrustedEscrow.getEscrowDetails(escrowId).isActive, true);
-        assertEq(mockERC20.balanceOf(address(untrustedEscrow)), INITIAL_FUNDED);
+        assertEq(
+            mockERC20.balanceOf(address(untrustedEscrow)),
+            untrustedEscrow.getEscrowDetails(escrowId).amount
+        );
     }
 
     function testWithdrawFails() public fundedBuyer {
@@ -110,5 +113,29 @@ contract UntrustedEscrowTokenWithFeesTest is Test {
         vm.expectRevert("Escrow is no longer active");
         untrustedEscrow.withdraw(escrowId);
         vm.stopPrank();
+    }
+
+    function testWithdraw() public fundedBuyer {
+        vm.startPrank(BUYER);
+        mockERC20.approve(address(untrustedEscrow), INITIAL_FUNDED);
+        bytes32 escrowId = untrustedEscrow.deposit(
+            SELLER,
+            address(mockERC20),
+            INITIAL_FUNDED
+        );
+        vm.stopPrank();
+
+        uint256 _amount = untrustedEscrow.getEscrowDetails(escrowId).amount;
+
+        vm.warp(block.timestamp + 4 days);
+
+        vm.prank(SELLER);
+        untrustedEscrow.withdraw(escrowId);
+        vm.stopPrank();
+
+        assertEq(mockERC20.balanceOf(address(SELLER)), _amount - 100);
+        assertEq(mockERC20.balanceOf(address(untrustedEscrow)), 0);
+        assertEq(untrustedEscrow.getEscrowDetails(escrowId).isActive, false);
+        assertEq(untrustedEscrow.getEscrowDetails(escrowId).amount, 0);
     }
 }

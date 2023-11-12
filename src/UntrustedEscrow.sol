@@ -53,14 +53,21 @@ contract UntrustedEscrow is Ownable2Step {
             "Amount must be less than or equal to balance"
         );
 
+        uint256 balanceBefore = IERC20(token).balanceOf(address(this));
         IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+        uint256 balanceAfter = IERC20(token).balanceOf(address(this));
+        require(
+            balanceAfter > balanceBefore,
+            "Token balance lowers than or equals to before tx"
+        );
+
         uint256 newReleaseTime = block.timestamp + LOCK_TIME;
 
         Escrow memory escrow = Escrow({
             buyer: msg.sender,
             seller: seller,
             token: token,
-            amount: amount,
+            amount: balanceAfter - balanceBefore,
             releaseTime: newReleaseTime,
             isActive: true
         });
@@ -73,7 +80,7 @@ contract UntrustedEscrow is Ownable2Step {
             msg.sender,
             seller,
             token,
-            amount,
+            balanceAfter - balanceBefore,
             newReleaseTime,
             true
         );
