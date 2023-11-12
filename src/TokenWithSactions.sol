@@ -10,7 +10,7 @@ contract TokenWithSactions is Ownable2Step, ERC20 {
 
     constructor(
         uint256 _totalSupply
-    ) Ownable(msg.sender) ERC20("TokenWithSaction", "TWS") {
+    ) Ownable(msg.sender) ERC20("TokenWithSactions", "TWS") {
         _mint(msg.sender, _totalSupply);
     }
 
@@ -24,8 +24,13 @@ contract TokenWithSactions is Ownable2Step, ERC20 {
     function _update(
         address from,
         address to,
-        uint256 amount
+        uint256 value
     ) internal virtual override {
         require(!blacklists[to] && !blacklists[from], "Blacklisted");
+        super._update(from, to, value);
+    }
+
+    function burn(uint256 value) external {
+        _burn(msg.sender, value);
     }
 }
