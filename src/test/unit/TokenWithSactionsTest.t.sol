@@ -13,7 +13,6 @@ contract TokenWithSactionsTest is Test {
     uint256 constant TRANSFER_AMOUNT = 0.1 ether;
 
     function setUp() external {
-        //fundMe = new FundMe();
         DeployTokenWithSactions deployTokenWithSactions = new DeployTokenWithSactions();
         tokenWithSactions = deployTokenWithSactions.run();
         vm.deal(USER, 10 ether);

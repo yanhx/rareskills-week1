@@ -14,6 +14,11 @@ contract TokenWithSactions is Ownable2Step, ERC20 {
         _mint(msg.sender, _totalSupply);
     }
 
+    /**
+     * blacklist or remove an address from blacklist
+     * @param _address The address to blacklist or remove from blacklist
+     * @param _isBlacklisting to blacklist or to remove from blacklist
+     */
     function blacklist(
         address _address,
         bool _isBlacklisting
@@ -21,6 +26,12 @@ contract TokenWithSactions is Ownable2Step, ERC20 {
         blacklists[_address] = _isBlacklisting;
     }
 
+    /**
+     * Override the _update function in ERC20, to check if to or from address is in blacklist
+     * @param from The address to transfer tokens from
+     * @param to The address to transfer tokens to
+     * @param value the amount of tokensto be transferred
+     */
     function _update(
         address from,
         address to,
