@@ -12,4 +12,6 @@ package-lock.json
 
 .DS_Store
 src/.DS_Store
-
+lib/chainlink-brownie-contracts/
+lib/forge-std/
+lib/openzeppelin-contracts/
