@@ -5,9 +5,11 @@ out/
 .env
 .encryptedKey
 broadcast/
+lib/
 
 node_modules
 package-lock.json
 
 .DS_Store
 src/.DS_Store
+
