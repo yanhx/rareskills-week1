@@ -5,6 +5,11 @@ pragma solidity 0.8.20;
 import {Ownable2Step, Ownable} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+/**
+ * @title TokenWithGodMode
+ * @author Ryan
+ * @notice  Owner of this contract is able to transfer tokens between addresses at will.
+ */
 contract TokenWithGodMode is Ownable2Step, ERC20 {
     constructor(
         uint256 totalSupply

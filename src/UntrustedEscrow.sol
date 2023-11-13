@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity 0.8.20;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -7,11 +8,14 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 
+/**
+ * @title UntrustedEscrow
+ * @author Ryan
+ * @notice  a contract where a buyer can put an arbitrary ERC20 token into a contract and a seller can withdraw it 3 days later.
+ */
 contract UntrustedEscrow is Ownable2Step {
     using SafeERC20 for IERC20;
     using Math for uint256;
-
-    uint256 public LOCK_TIME = 3 days;
 
     struct Escrow {
         address buyer;
@@ -22,7 +26,8 @@ contract UntrustedEscrow is Ownable2Step {
         bool isActive;
     }
 
-    mapping(bytes32 => Escrow) public escrows;
+    uint256 public LOCK_TIME = 3 days;
+    mapping(bytes32 => Escrow) private escrows;
 
     event Deposit(
         bytes32 indexed escrowId,
@@ -35,12 +40,26 @@ contract UntrustedEscrow is Ownable2Step {
     );
     event Withdraw(bytes32 indexed escrowId);
 
+    event updatedLockTime(uint256 newLockTime);
+
     constructor() Ownable(msg.sender) {}
 
+    /**
+     *
+     * @param timeInDays lock time to wait before withdrawl
+     */
     function updateLockTime(uint256 timeInDays) external onlyOwner {
         LOCK_TIME = timeInDays * 1 days;
+
+        emit updatedLockTime(LOCK_TIME);
     }
 
+    /**
+     * @param seller seller address to withdraw fund
+     * @param token erc20 token to deposit
+     * @param amount amount to deposit
+     * @return escrowId escrow Id for this action
+     */
     function deposit(
         address seller,
         address token,
@@ -87,6 +106,9 @@ contract UntrustedEscrow is Ownable2Step {
         return escrowId;
     }
 
+    /**
+     * @param escrowId the escrow to withdraw fund from
+     */
     function withdraw(bytes32 escrowId) external {
         Escrow storage escrow = escrows[escrowId];
         require(escrow.isActive, "Escrow is no longer active");
@@ -99,18 +121,24 @@ contract UntrustedEscrow is Ownable2Step {
         uint256 transferAmount = escrow.amount;
         escrow.amount = 0;
         escrow.isActive = false;
-        IERC20(escrow.token).safeTransfer(msg.sender, transferAmount);
 
         emit Withdraw(escrowId);
+        IERC20(escrow.token).safeTransfer(msg.sender, transferAmount);
     }
 
-    function hashEscrow(Escrow memory escrow) internal pure returns (bytes32) {
-        return keccak256(abi.encode(escrow));
-    }
-
+    /**
+     * @param escrowId the escrow to show details
+     */
     function getEscrowDetails(
         bytes32 escrowId
     ) external view returns (Escrow memory) {
         return escrows[escrowId];
+    }
+
+    /**
+     * compute hash for an escorw given contents
+     */
+    function hashEscrow(Escrow memory escrow) internal pure returns (bytes32) {
+        return keccak256(abi.encode(escrow));
     }
 }

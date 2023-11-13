@@ -5,8 +5,13 @@ pragma solidity 0.8.20;
 import {Ownable2Step, Ownable} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+/**
+ * @title TokenWithSactions
+ * @author Ryan
+ * @notice  a fungible token that allows owner to ban specified addresses from sending and receiving tokens.
+ */
 contract TokenWithSactions is Ownable2Step, ERC20 {
-    mapping(address => bool) public blacklists;
+    mapping(address => bool) private blacklists;
 
     constructor(
         uint256 totalSupply
@@ -40,7 +45,7 @@ contract TokenWithSactions is Ownable2Step, ERC20 {
         address from,
         address to,
         uint256 value
-    ) internal virtual override {
+    ) internal override {
         require(!blacklists[to] && !blacklists[from], "Blacklisted");
         super._update(from, to, value);
     }
