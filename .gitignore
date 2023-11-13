@@ -16,3 +16,5 @@ lib/chainlink-brownie-contracts/
 lib/forge-std/
 lib/openzeppelin-contracts/
 lib/erc1363-payable-token/
+
+coverage.txt
